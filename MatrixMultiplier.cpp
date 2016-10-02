@@ -2,13 +2,16 @@
 #include <cstdlib> 
 #include <string>
 #include <ctime>
+#include <cmath>
 #include <fstream>
 #include <omp.h>
 
 using namespace std;
 
+//to calculate sample size, average and sd is needed
+const int sampleSizeEst = 80;		//for population of 100, this is the sample size for CI = 95% and ME = 5%
+
 /*matrix declaration*/
-int sampleSizes[10];
 double matrixA[1000][1000];
 double matrixB[1000][1000];
 double matrixC[1000][1000];
@@ -18,43 +21,42 @@ double matrixE[1000][1000];
 
 /*function initialization*/
 void initializeMatrix(int n);
+void clearArray(double matrix[1000][1000], int n);
 void writeMatrix(double matrix[1000][1000], char const* fileName ,int n);
 double multiplyMatrixSerial(int n);
 double multiplyMatrixParallel(int n);
 /*function initialization*/
 
 int main(){
-	int n = 0;
-	cout << "Enter matrix dimension \n";
-	cin >> n;	// less than 1000, greater than 0
 
-	initializeMatrix(n);	//initialize matrices with random values
+	initializeMatrix(1000);	//initialize matrices with random values
 	cout << "Matrix A and Matrix B was initialized: \n";
 
-	cout << "Matrix A Matrix B is being multiplied serially: \n";
+	for(int i = 0; i<10;i++){
+
+		clearArray(matrixC,(i+1)*100);
+		clearArray(matrixD,(i+1)*100);
+		clearArray(matrixE,(i+1)*100);
+
+		double averageSer = 0.0;
+
+		double averagePar = 0.0;
+
+		for(int j = 0; j<sampleSizeEst;j++){
+			clearArray(matrixC,(i+1)*100);
+			clearArray(matrixD,(i+1)*100);
+			averageSer +=  multiplyMatrixSerial((i+1)*100);
+			averagePar +=  multiplyMatrixParallel((i+1)*100);
+		}
+
+		averageSer /= sampleSizeEst;
+		averagePar /= sampleSizeEst;
+
+		cout << "Average time in sec to mulitply in Serial for "<<(i+1)*100<<" inputs = " << averageSer <<endl;
+		cout << "Average time in sec to mulitply in Parallel for "<<(i+1)*100<<" inputs = " << averagePar <<endl<<endl;
+	}
 
 	
-	double durationSerial = multiplyMatrixSerial(n);		//multiply matrices serially, which returns time taken
-	
-	cout << "Time taken for multiplication : " << durationSerial << endl << endl;
-
-	cout << "Matrix A Matrix B is being multiplied serially: \n";
-
-	
-	double durationParallel = multiplyMatrixParallel(n);		//multiply matrices parallely, which returns time taken
-	
-	cout << "Time taken for multiplication : " << durationParallel << endl << endl;
-
-	//write initialized and multiplied matrices to files
-	cout << "Initialized Matrix A was written to file matrixA.txt: \n";
-	writeMatrix(matrixA,"matrixA.txt",n);
-	cout << "Initialized Matrix B was written to file matrixA.txt: \n";
-	writeMatrix(matrixB,"matrixB.txt",n);
-	cout << "Multiplied answer, Matrix C was written to file matrixC.txt: \n";
-	writeMatrix(matrixC,"matrixC.txt",n);
-	cout << "Multiplied answer, Matrix D was written to file matrixC.txt: \n";
-	writeMatrix(matrixD,"matrixD.txt",n);
-
 }
 
 void initializeMatrix(int n){
@@ -65,24 +67,6 @@ void initializeMatrix(int n){
 			matrixB[i][j] = rand();
 		}
 	}
-}
-
-void writeMatrix(double matrix[1000][1000], char const* fileName, int n){
-	//write matrix elements to files
-	ofstream myfile (fileName); 
-	if(myfile.is_open()){
-		for (int i = 0; i < n; i++){
-			for (int j = 0; j < n; j++){			
-				myfile << matrix[i][j] << "\t" ;
-			}	
-			myfile << endl;
-		}
-		myfile.close();
-	}
-	else{
-		cout <<"Unable to open "<< fileName <<endl;
-	}
-	
 }
 
 double multiplyMatrixParallel(int n){
@@ -114,4 +98,14 @@ double multiplyMatrixSerial(int n){
 	double end = omp_get_wtime();	//end time
 
 	return (double)(end-begin);		//duration for multiplication is calculated
+}
+
+void clearArray(double matrix[1000][1000], int n){
+	for (int i = 0; i < n; i++){
+		for (int j = 0; j < n; j++){
+			for (int k = 0; k < n; k++){
+				matrix[i][j] = 0.0;
+			}
+		}
+	}
 }
