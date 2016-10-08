@@ -80,6 +80,8 @@ int main(){
 		sampleSizesSerial[i] = max(sampleSizesSerial[i], sampleSizeEst);
 		sampleSizesParallel[i] = max(sampleSizesParallel[i], sampleSizeEst);
 
+		cout << "Serial" << "SD "<<sdSer<<" AVG "<<averageSer<<endl;
+		cout << "Parallel" << "SD "<<sdPar<<" AVG "<<averagePar<<endl;
 		cout << "Sample size for mulitply in Serial "<<(i+1)*100<<" = " << sampleSizesSerial[i] <<endl;
 		cout << "Sample size for mulitply in Parallel "<<(i+1)*100<<" = " << sampleSizesParallel[i] <<endl<<endl;
 
