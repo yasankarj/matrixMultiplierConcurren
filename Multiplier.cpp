@@ -9,7 +9,7 @@
 using namespace std;
 
 //to calculate sample size, average and sd is needed
-const int sampleSizeEst = 80;		//for population of 100, this is the sample size for CI = 95% and ME = 5%
+int sampleSizeEst = 80;		//for population of 100, this is the sample size for CI = 95% and ME = 5%
 
 /*matrix declaration*/
 double matrixA[1000][1000];
@@ -28,33 +28,39 @@ double multiplyMatrixParallel(int n);
 /*function initialization*/
 
 int main(){
+	int n;
+	cout<<"Matrix size :";
+	cin>>n;
+	cout<<"Sample Size :";
+	cin>>sampleSizeEst;
 
 	initializeMatrix(1000);	//initialize matrices with random values
 	cout << "Matrix A and Matrix B was initialized: \n";
 
-	for(int i = 0; i<10;i++){
+	//for(int i = 0; i<10;i++){
 
-		clearArray(matrixC,(i+1)*100);
-		clearArray(matrixD,(i+1)*100);
-		clearArray(matrixE,(i+1)*100);
+		
 
 		double averageSer = 0.0;
 
 		double averagePar = 0.0;
 
 		for(int j = 0; j<sampleSizeEst;j++){
-			clearArray(matrixC,(i+1)*100);
-			clearArray(matrixD,(i+1)*100);
-			averageSer +=  multiplyMatrixSerial((i+1)*100);
-			averagePar +=  multiplyMatrixParallel((i+1)*100);
+			clearArray(matrixC,n);
+			clearArray(matrixD,n);
+			averageSer +=  multiplyMatrixSerial(n);
+			averagePar +=  multiplyMatrixParallel(n);
 		}
 
 		averageSer /= sampleSizeEst;
 		averagePar /= sampleSizeEst;
 
-		cout << "Average time in sec to mulitply in Serial for "<<(i+1)*100<<" inputs = " << averageSer <<endl;
-		cout << "Average time in sec to mulitply in Parallel for "<<(i+1)*100<<" inputs = " << averagePar <<endl<<endl;
-	}
+		cout << "Average time in sec to mulitply in Serial for "<<n<<" inputs = " << averageSer <<endl;
+		cout << "Average time in sec to mulitply in Parallel for "<<n<<" inputs = " << averagePar <<endl<<endl;
+		clearArray(matrixC,n);
+		clearArray(matrixD,n);
+		clearArray(matrixE,n);
+	//}
 
 	
 }
