@@ -171,7 +171,7 @@ void pMultiply(int n, double matrixA[1000][1000], double matrixB[1000][1000], do
     int bx_end = bx_start + len;    // ending x coordinate of sub matrix B
 
     /*multiply using matrix A and transpose of matrix B*/
-    if (threadId / 4 == 0) {
+        #pragma omp parallel for collapse(3)
         for (i = ay_start; i < ay_end; i++) {
             for (j = bx_start; j < bx_end; j++) {
                 for (k = 0; k < len; k++) {
@@ -179,8 +179,7 @@ void pMultiply(int n, double matrixA[1000][1000], double matrixB[1000][1000], do
                 }
             }
         }
-    }
-    else {
+         #pragma omp parallel for collapse(3)//
         for (i = ay_start; i < ay_end; i++) {
             for (j = bx_start; j < bx_end; j++) {
                 for (k = 0; k < len; k++) {
@@ -188,7 +187,6 @@ void pMultiply(int n, double matrixA[1000][1000], double matrixB[1000][1000], do
                 }
             }
         }
-    }
 }
 
 double multiplyMatrixParallelOp(int nSamples, int matrixSize) {
@@ -217,7 +215,7 @@ double multiplyMatrixParallelOp(int nSamples, int matrixSize) {
 
     //Multiply matrices using parallel divide and conquer approach
     // Number of threads is 8
-#pragma omp parallel num_threads(8)
+
     pMultiply(n, matrixA, matrixTransB, matrixC_ParallelOp, matrixT);
 
     //Get resulting matrix for A*B using parallel for loop
@@ -230,9 +228,6 @@ double multiplyMatrixParallelOp(int nSamples, int matrixSize) {
 
     double end_time = omp_get_wtime();
     double timeTaken = end_time - start_time;
-
-    //runningTime[iteration] = timeTaken;
-
 
     //Clear allocated memory
     clearArray(matrixA, n);
@@ -260,7 +255,7 @@ void initializeMatrix(int n) {
 double multiplyMatrixParallel(int n) {
     //matrix multiplication
     double begin = omp_get_wtime();    //start time
-#pragma omp parallel for collapse(3) schedule(dynamic)		//this for loop will be evenly distributed among n number of threads threads and be calculated independent
+#pragma omp parallel for schedule(dynamic)		//this for loop will be evenly distributed among n number of threads threads and be calculated independent
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             for (int k = 0; k < n; k++) {
